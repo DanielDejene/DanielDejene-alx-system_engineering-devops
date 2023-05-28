@@ -1,4 +1,4 @@
-Link to Image: https://imgur.com/6bExVLj
+Link to Image: https://imgur.com/a/439BqfJ
 
 - Server: This is the main server that hosts the web application. It receives requests from the load balancer and responds to them by serving the necessary content. This server is responsible for managing the web content, as well as the application and database servers.
 
