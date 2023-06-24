@@ -1,9 +1,5 @@
-#  Client configuration file
-
-Host *
-    PasswordAuthentication no
-    IdentifyFile ~/.ssh/school
     SendEnv LANG LC_*
-    HashKnownHost yes
+    HashKnownHosts yes
     GSSAPIAuthentication yes
-    User ubuntu
+    PasswordAuthentication no
+    IdentityFile ~/.ssh/holberton
