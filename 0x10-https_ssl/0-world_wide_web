@@ -1,35 +1,63 @@
 #!/usr/bin/env bash
-# Displays informtation about subdomains.
+# Bash script that displays information about subdomains.
 
-# uncomment for debugging purposes.
-#set -x
+# function get_record_type() {
+#   local output=$(dig $1.$2 | grep -A1 'ANSWER SECTION:')
+#   if echo "$output" | grep -q 'CNAME'; then
+#     echo "CNAME"
+#   else
+#     echo "A"
+#   fi
+# }
 
-# for the checker to work please remove the colors.
+# function get_destination() {
+#   local output=$(dig $1.$2 | grep -A1 'ANSWER SECTION:')
+#   local ip=$(echo "$output" | grep 'IN A ' | awk '{print $5}')
+#   if [ -z "$ip" ]; then
+#     local cname=$(echo "$output" | grep 'IN CNAME ' | awk '{print $5}')
+#     echo "$cname"
+#   else
+#     echo "$ip"
+#   fi
+# }
 
-# colors
-blue='\e[1;34m'
-brown='\e[0;33m'
-reset='\033[0m'
+# if [ $# -eq 1 ]; then
+#   domain=$1
+#   subdomains=(www lb-01 web-01 web-02)
+# else
+#   domain=$1
+#   subdomains=($2)
+# fi
 
-# variables & parameters
-subdomains=( "www" "lb-01" "web-01" "web-02" )
-domain="$1"
-sub="$2"
+# for subdomain in "${subdomains[@]}"
+# do
+#   record_type=$(get_record_type $subdomain $domain)
+#   destination=$(get_destination $subdomain $domain)
+#   echo "The subdomain $subdomain is a $record_type record and points to $destination"
+# done
 
-dig_cmd () {
-	# func variables
-	sub="$2"
-	INFO="$(dig "$sub.$domain" | grep -A1 'ANSWER SECTION:' | awk 'NR==2')"
-	IP=$(echo "$INFO" | awk '{print $5}')
-	RECORD=$(echo "$INFO" | awk '{print $4}')
+# rewritten code so that it shows IP
 
-	echo -e "${brown}The subdomain ${blue}$sub${brown} is a ${blue}$RECORD${brown} record and points to ${blue}$IP${reset}"
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 domain [subdomain]"
+  exit 1
+fi
+
+domain=$1
+subdomain=${2:-"www lb-01 web-01 web-02"}
+
+function get_record_type() {
+  local output=$(dig $1.$2 | grep -A1 'ANSWER SECTION:')
+  if echo "$output" | grep -q 'CNAME'; then
+    echo "CNAME"
+  else
+    echo "A"
+  fi
 }
 
-if [ $# -eq 1 ]; then
-	for subs in "${subdomains[@]}"; do
-		dig_cmd "$domain" "$subs"
-	done
-elif [ $# -eq 2 ]; then
-	dig_cmd "$domain" "$sub"
-fi
+for s in $subdomain; do
+  dest=$(dig +short $s.$domain | awk '{print $1}')
+#   record=$(dig +short $s.$domain | awk '{print $4}')
+  record=$(get_record_type $subdomain $domain)
+  echo "The subdomain $s is a $record record and points to $dest"
+done
